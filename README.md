@@ -2,4 +2,7 @@
 My shells scripts
 
 **notify.sh**
-> This script allows you to send push notifications mobile
+> Allows you to send push notifications mobile
+
+**check_rpi_temp.sh**
+> Checks raspberry pi temperature
