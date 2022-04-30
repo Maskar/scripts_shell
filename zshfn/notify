@@ -6,7 +6,7 @@
 # Author: Mourad Askar
 ########################################################
 
-api_key_file=$HOME/.keys/.prowl
+api_key_file=$HOME/.config/keys/.prowl
 
 # If key file doesn't exists exit with error message
 [ ! -f "$api_key_file" ] && { echo "$api_key_file is missing"; exit 1; }
@@ -28,7 +28,7 @@ response=$(curl $url \
 	--data-urlencode application="$app" \
 	--data-urlencode event="$event" \
 	-s \
-	) 
+	)
 
 # If request succeed print out feedback as Notified: and event
 if grep -q 'code="200"' <<< "$response"; then

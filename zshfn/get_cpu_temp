@@ -1,0 +1,12 @@
+#!/bin/env bash
+
+function get_cpu_temp() {
+    integer cpu_temp=-1
+    [[ ! $(command -v osx-cpu-temp) ]] || { integer cpu_temp="${$(/usr/local/bin/osx-cpu-temp)%%°*}"; }
+    [[ ! $(command -v vcgencmd) ]] || { integer cpu_temp="${$(vcgencmd measure_temp)%%°*}"; }
+    [[ ! -d /sys/class/thermal/thermal_zone0 ]] || { integer cpu_temp="$(</sys/class/thermal/thermal_zone0/temp) / 1000"; }
+
+    echo $cpu_temp
+}
+
+get_cpu_temp "$@"

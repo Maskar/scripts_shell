@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+
+print('HELLO WORLD')
+
+
+def pyhellofn():
+    print('HELLO WORLD FN')
