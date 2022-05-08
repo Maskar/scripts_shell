@@ -13,3 +13,4 @@ function get_ip_tedata() {curl -s -u 787ea028-6bb5-4ade-d2db-53585e02d6ce:x -X G
 #function get_ip_tedata() {echo 197.50.65.2}
 
 function get_ip_public() {curl checkip.amazonaws.com}
+function get_ip_local() {echo "WIFI: $(ipconfig getifaddr en0 || echo N/A)"; echo "ETH:  $(ipconfig getifaddr en7 || echo N/A)"}
