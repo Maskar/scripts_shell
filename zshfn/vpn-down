@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 #sudo sh -c 'echo "%admin ALL=(ALL) NOPASSWD: /usr/local/bin/openconnect" > /etc/sudoers.d/foo'
 
@@ -8,7 +8,7 @@
 # In my setup the VPN username is the same as $USER
 #
 
-vpn-init
+source vpn-init
 
 function vpn-down() {
   if pgrep -x "openconnect" > /dev/null

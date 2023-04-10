@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 #sudo sh -c 'echo "%admin ALL=(ALL) NOPASSWD: /usr/local/bin/openconnect" > /etc/sudoers.d/foo'
 
@@ -8,7 +8,7 @@
 # In my setup the VPN username is the same as $USER
 #
 
-vpn-init
+source vpn-init
 
 function vpn-up() {
   if [[ -z $VPN_HOST ]]
@@ -24,7 +24,7 @@ function vpn-up() {
   else
     echo "${BICyan}Starting the VPN ...${Color_Off}"
     echo "${BLINK}${BIYellow}Approve connection on phone!${Color_Off}"
-    cat ${VPN_CONFIG_PATH}/vpnp | sudo openconnect -bqd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$VPN_GROUP --user=$USER $VPN_HOST &> /dev/null
+    cat ${VPN_CONFIG_PATH}/vpnp | sudo openconnect -bqd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$VPN_GROUP --user=$USER --servercert $VPN_HOST_CERT $VPN_HOST &> /dev/null
   fi
 
   if pgrep -x "openconnect" > /dev/null
