@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 #sudo sh -c 'echo "%admin ALL=(ALL) NOPASSWD: /usr/local/bin/openconnect" > /etc/sudoers.d/foo'
 
@@ -8,30 +8,39 @@
 # In my setup the VPN username is the same as $USER
 #
 
-vpn-init
+source vpn-init
 
 function vpn-up() {
-  if [[ -z $VPN_HOST ]]
-  then
+  if [[ -n "$1" ]]; then
+    export VPN_HOST=$1
+  elif [[ -n $(op read "op://TM/TFX VPN/host") ]]; then
+    export VPN_HOST=$(op read "op://TM/TFX VPN/host")
+  else
     echo "${BIYellow}Please set VPN_HOST env var${Color_Off}"
     return
   fi
 
-  if pgrep -x "openconnect" > /dev/null
-  then
+  #if [[ -z $VPN_HOST ]]; then
+  #  echo "${BIYellow}Please set VPN_HOST env var${Color_Off}"
+  #  return
+  #fi
+
+  if pgrep -x "openconnect" > /dev/null; then
     echo "${CHECK_MARK}${BICyan}VPN is already running!${Color_Off}"
     return
   else
     echo "${BICyan}Starting the VPN ...${Color_Off}"
     echo "${BLINK}${BIYellow}Approve connection on phone!${Color_Off}"
-    cat ${VPN_CONFIG_PATH}/vpnp | sudo openconnect -bqd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$VPN_GROUP --user=$USER $VPN_HOST &> /dev/null
+    # cat ${VPN_CONFIG_PATH}/vpnp | sudo openconnect -bqd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$VPN_GROUP --user=$USER --servercert $VPN_HOST_CERT $VPN_HOST &> /dev/null
+    op read "op://TM/TFX VPN/password" | sudo openconnect -bqd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$(op read "op://TM/TFX VPN/group") --user=$(op read "op://TM/TFX VPN/username") ny4vpn.tfxcorp.com &> /dev/null
   fi
 
-  if pgrep -x "openconnect" > /dev/null
-  then
+  if pgrep -x "openconnect" > /dev/null; then
     echo "${REPLACE_2LINE}${CHECK_MARK} VPN started!${Color_Off}"
   else
     echo "${REPLACE_2LINE}${EXCLAMATION_MARK} ${BIRed}VPN failed to start!${Color_Off}"
+    # cat ${VPN_CONFIG_PATH}/vpnp | sudo openconnect -bd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$VPN_GROUP --user=$USER --servercert $VPN_HOST_CERT $VPN_HOST
+    op read "op://TM/TFX VPN/password" | sudo openconnect -bd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$(op read "op://TM/TFX VPN/group") --user=$(op read "op://TM/TFX VPN/username") ny4vpn.tfxcorp.com
   fi
 }
 

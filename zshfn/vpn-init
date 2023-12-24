@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 #sudo sh -c 'echo "%admin ALL=(ALL) NOPASSWD: /usr/local/bin/openconnect" > /etc/sudoers.d/foo'
 
@@ -7,8 +7,9 @@
 #
 # In my setup the VPN username is the same as $USER
 #
-export VPN_CONFIG_PATH=${XDG_CONFIG_HOME}/tfxcorp/
+export VPN_CONFIG_PATH=${XDG_CONFIG_HOME}/tfxcorp
 export VPN_HOST=$(< ${VPN_CONFIG_PATH}/vpnh)
+export VPN_HOST_CERT=$(< ${VPN_CONFIG_PATH}/vpnhc)
 export VPN_GROUP=$(< ${VPN_CONFIG_PATH}/vpng)
 
 COLOR_MACROS_FILE=${ZDOTDIR}/color_macros
