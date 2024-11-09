@@ -12,7 +12,7 @@ source vpn-init
 
 function vpn-up() {
   
-  op signin
+  op signin --account E44VP6N4VRGWZKIFB3XAAQTTEA
 
   if [[ -n "$1" ]]; then
     export VPN_HOST=$1
