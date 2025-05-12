@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
+
 ########################################################
 # This script allows you to send push notifications mobile
 # It uses https://www.prowlapp.com service

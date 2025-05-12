@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env zsh
 
 function get_cpu_temp() {
     integer cpu_temp=-1

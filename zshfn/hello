@@ -1,9 +1,11 @@
+#!/usr/bin/env zsh
+
 # Let's again assume that these are the contents of a file called "hello".
 
 # You may run arbitrary code in here, that will run the first time the
 # function is referenced. Commonly, that is initialisation code. For example
 # the `_tmux' completion function does exactly that.
-echo initialising...
+echo "initialising..."
 
 # You may also define additional functions in here. Note, that these
 # functions are visible in global scope, so it is paramount to take

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 function jpn() {screen -dmS JLab conda run -n depaul jupyter-notebook --autoreload --port=8889 --port-retries=0 --browser='open -a Microsoft\ Edge %s' $@}
 #function jpl() {screen -dmS JLab conda run -n depaul jupyter-lab --browser='open -a JupyterLab --args %s' $@}
