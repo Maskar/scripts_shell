@@ -52,18 +52,16 @@ function start_openconnect() {
     echo "${BIRed}Failed to fetch VPN credentials from 1Password. Aborting.${Color_Off}"
     return 1
   fi
+  local cmd=(sudo openconnect $oc_opts --disable-ipv6 --passwd-on-stdin --authgroup="$group" --user="$username")
   if [[ -n "$VPN_HOST_CERT" ]]; then
-    if [[ "$redirect" == "true" ]]; then
-      echo "$password" | sudo openconnect $oc_opts --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup="$group" --user="$username" --servercert "$VPN_HOST_CERT" "$VPN_HOST" &> /dev/null
-    else
-      echo "$password" | sudo openconnect $oc_opts --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup="$group" --user="$username" --servercert "$VPN_HOST_CERT" "$VPN_HOST"
-    fi
+    cmd+=(--servercert "$VPN_HOST_CERT")
+  fi
+  cmd+=("$VPN_HOST")
+
+  if [[ "$redirect" == "true" ]]; then
+    echo "$password" | "${cmd[@]}" &> /dev/null
   else
-    if [[ "$redirect" == "true" ]]; then
-      echo "$password" | sudo openconnect $oc_opts --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup="$group" --user="$username" "$VPN_HOST" &> /dev/null
-    else
-      echo "$password" | sudo openconnect $oc_opts --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup="$group" --user="$username" "$VPN_HOST"
-    fi
+    echo "$password" | "${cmd[@]}"
   fi
 }
 
@@ -96,15 +94,15 @@ function vpn-up() {
   else
     echo "${BICyan}Starting the VPN ...${Color_Off}"
     echo "${BLINK}${BIYellow}Approve connection on phone!${Color_Off}"
-    start_openconnect "-bqd" true
+    start_openconnect "-bq" true
   fi
 
   if pgrep -x "openconnect" > /dev/null; then
-    echo "${REPLACE_2LINE}${CHECK_MARK} VPN started!${Color_Off}"
+    echo "${REPLACE_2LINE}${CHECK_MARK} VPN started to ${VPN_HOST}!${Color_Off}"
   else
     echo "${REPLACE_2LINE}${EXCLAMATION_MARK} ${BIRed}VPN failed to start!${Color_Off}"
-    echo "${BICyan}Retrying in debug mode (-bd, not quiet)...${Color_Off}"
-    start_openconnect "-bd" false
+    echo "${BICyan}Retrying in debug mode (not quiet)...${Color_Off}"
+    start_openconnect "-bv" false
   fi
 }
 
