@@ -8,32 +8,87 @@
 # In my setup the VPN username is the same as $USER
 #
 
-source vpn-init
+export VPN_CONFIG_PATH=${XDG_CONFIG_HOME}/tfxcorp
+export VPN_HOST=$(< ${VPN_CONFIG_PATH}/vpnh)
+export VPN_HOST_CERT=$(< ${VPN_CONFIG_PATH}/vpnhc)
+export VPN_GROUP=$(< ${VPN_CONFIG_PATH}/vpng)
+
+COLOR_MACROS_FILE=${ZDOTDIR}/color_macros
+[ -f "$COLOR_MACROS_FILE" ] && source "$COLOR_MACROS_FILE" || { echo -e "${BLINK}${BIYellow}${COLOR_MACROS_FILE} is required.${Color_Off}"; return; }
+
+for cmd in op openconnect sudo; do
+  command -v "$cmd" >/dev/null 2>&1 || { echo "${BIRed}$cmd is required but not installed.${Color_Off}"; return 1; }
+done
+
+# Allow OP_ACCOUNT to be set externally, fallback to hardcoded value
+: "${OP_ACCOUNT:=E44VP6N4VRGWZKIFB3XAAQTTEA}"
+
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+  echo "Usage: vpn-up [VPN_HOST] [VPN_HOST_CERT]"
+  echo "  VPN_HOST:      Override the VPN host (optional)"
+  echo "  VPN_HOST_CERT: Override the VPN host certificate (optional)"
+  echo ""
+  echo "This script signs in to 1Password, fetches VPN credentials, and starts OpenConnect VPN."
+  return 0
+fi
+
+function start_openconnect() {
+  local oc_opts="$1"
+  local redirect="$2"
+  local password group username cert
+  if [[ -z "$VPN_HOST" ]]; then
+    echo "${BIYellow}VPN_HOST is not set. Aborting.${Color_Off}"
+    return 1
+  fi
+  if [[ -z "$VPN_GROUP" ]]; then
+    echo "${BIYellow}VPN_GROUP is not set. Aborting.${Color_Off}"
+    return 1
+  fi
+  password=$(op read "op://TM/TFX VPN/password" 2>/dev/null)
+  group=$(op read "op://TM/TFX VPN/group" 2>/dev/null)
+  username=$(op read "op://TM/TFX VPN/username" 2>/dev/null)
+  cert=$(op read "op://TM/TFX VPN/cert" 2>/dev/null)
+  if [[ -z "$password" || -z "$group" || -z "$username" ]]; then
+    echo "${BIRed}Failed to fetch VPN credentials from 1Password. Aborting.${Color_Off}"
+    return 1
+  fi
+  if [[ -n "$VPN_HOST_CERT" ]]; then
+    if [[ "$redirect" == "true" ]]; then
+      echo "$password" | sudo openconnect $oc_opts --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup="$group" --user="$username" --servercert "$VPN_HOST_CERT" "$VPN_HOST" &> /dev/null
+    else
+      echo "$password" | sudo openconnect $oc_opts --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup="$group" --user="$username" --servercert "$VPN_HOST_CERT" "$VPN_HOST"
+    fi
+  else
+    if [[ "$redirect" == "true" ]]; then
+      echo "$password" | sudo openconnect $oc_opts --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup="$group" --user="$username" "$VPN_HOST" &> /dev/null
+    else
+      echo "$password" | sudo openconnect $oc_opts --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup="$group" --user="$username" "$VPN_HOST"
+    fi
+  fi
+}
 
 function vpn-up() {
-  
-  op signin --account E44VP6N4VRGWZKIFB3XAAQTTEA
+  op signin --account "$OP_ACCOUNT"
+  if [[ $? -ne 0 ]]; then
+    echo "${BIRed}1Password signin failed. Aborting.${Color_Off}"
+    return 1
+  fi
 
   if [[ -n "$1" ]]; then
-    export VPN_HOST=$1
-  elif [[ -n $(op read "op://TM/TFX VPN/host") ]]; then
-    export VPN_HOST=$(op read "op://TM/TFX VPN/host")
+    export VPN_HOST="$1"
+  elif [[ -n $(op read "op://TM/TFX VPN/host" 2>/dev/null) ]]; then
+    export VPN_HOST="$(op read "op://TM/TFX VPN/host" 2>/dev/null)"
   else
     echo "${BIYellow}Please set VPN_HOST env var${Color_Off}"
-    return
+    return 1
   fi
 
   if [[ -n "$2" ]]; then
-    export VPN_HOST_CERT=$1
-    echo "${BIYellow}VPN_HOST_CERT env var has been set${Color_Off}"
+    export VPN_HOST_CERT="$2"
+    echo "${BIYellow}Using VPN_HOST_CERT${Color_Off}"
   else
     export VPN_HOST_CERT=
   fi
-
-  #if [[ -z $VPN_HOST ]]; then
-  #  echo "${BIYellow}Please set VPN_HOST env var${Color_Off}"
-  #  return
-  #fi
 
   if pgrep -x "openconnect" > /dev/null; then
     echo "${CHECK_MARK}${BICyan}VPN is already running!${Color_Off}"
@@ -41,29 +96,15 @@ function vpn-up() {
   else
     echo "${BICyan}Starting the VPN ...${Color_Off}"
     echo "${BLINK}${BIYellow}Approve connection on phone!${Color_Off}"
-    # cat ${VPN_CONFIG_PATH}/vpnp | sudo openconnect -bqd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$VPN_GROUP --user=$USER --servercert $VPN_HOST_CERT $VPN_HOST &> /dev/null
-    # op read "op://TM/TFX VPN/password" | sudo openconnect -bqd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$(op read "op://TM/TFX VPN/group") --user=$(op read "op://TM/TFX VPN/username") ny4vpn.tfxcorp.com &> /dev/null
-    # --servercert $(op read "op://TM/TFX VPN/cert")
-    if [[ -n $VPN_HOST_CERT ]]; then
-      echo 'Using VPN_HOST_CERT'
-      op read "op://TM/TFX VPN/password" | sudo openconnect -bqd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$(op read "op://TM/TFX VPN/group") --user=$(op read "op://TM/TFX VPN/username") --servercert $VPN_HOST_CERT $VPN_HOST &> /dev/null
-    else 
-      op read "op://TM/TFX VPN/password" | sudo openconnect -bqd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$(op read "op://TM/TFX VPN/group") --user=$(op read "op://TM/TFX VPN/username") $VPN_HOST &> /dev/null
-    fi
+    start_openconnect "-bqd" true
   fi
 
   if pgrep -x "openconnect" > /dev/null; then
     echo "${REPLACE_2LINE}${CHECK_MARK} VPN started!${Color_Off}"
   else
     echo "${REPLACE_2LINE}${EXCLAMATION_MARK} ${BIRed}VPN failed to start!${Color_Off}"
-    # cat ${VPN_CONFIG_PATH}/vpnp | sudo openconnect -bd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$VPN_GROUP --user=$USER --servercert $VPN_HOST_CERT $VPN_HOST
-    # op read "op://TM/TFX VPN/password" | sudo openconnect -bd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$(op read "op://TM/TFX VPN/group") --user=$(op read "op://TM/TFX VPN/username") ny4vpn.tfxcorp.com
-    if [[ -n $VPN_HOST_CERT ]]; then
-      echo 'Using VPN_HOST_CERT'
-      op read "op://TM/TFX VPN/password" | sudo openconnect -bd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$(op read "op://TM/TFX VPN/group") --user=$(op read "op://TM/TFX VPN/username") --servercert $VPN_HOST_CERT $VPN_HOST &> /dev/null
-    else 
-      op read "op://TM/TFX VPN/password" | sudo openconnect -bd --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup=$(op read "op://TM/TFX VPN/group") --user=$(op read "op://TM/TFX VPN/username") $VPN_HOST &> /dev/null
-    fi
+    echo "${BICyan}Retrying in debug mode (-bd, not quiet)...${Color_Off}"
+    start_openconnect "-bd" false
   fi
 }
 

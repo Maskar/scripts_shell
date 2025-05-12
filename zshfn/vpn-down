@@ -8,7 +8,8 @@
 # In my setup the VPN username is the same as $USER
 #
 
-source vpn-init
+COLOR_MACROS_FILE=${ZDOTDIR}/color_macros
+[ -f $COLOR_MACROS_FILE ] && source $COLOR_MACROS_FILE || { echo -e "${BLINK}${BIYellow}${COLOR_MACROS_FILE} is required.${Color_Off}"; return; }
 
 function vpn-down() {
   if pgrep -x "openconnect" > /dev/null
