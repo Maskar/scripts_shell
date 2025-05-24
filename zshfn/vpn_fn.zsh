@@ -106,4 +106,17 @@ function vpn-up() {
   fi
 }
 
-vpn-up "$@"
+function vpn-down() {
+  if pgrep -x "openconnect" > /dev/null
+  then
+    echo "${BIRed}Killing the VPN ...${Color_Off}"
+    sleep 1
+    sudo kill -2 `pgrep openconnect` &> /dev/null
+    echo "${REPLACE_LINE}${CHECK_MARK} VPN killed!${Color_Off}"
+else
+    echo "${EXCLAMATION_MARK}${BICyan}VPN is already not running!${Color_Off}"
+    return
+  fi
+}
+
+# vpn-up "$@"
