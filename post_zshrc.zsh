@@ -8,6 +8,10 @@ export PATH="$PATH:/Users/maskar/.cache/lm-studio/bin"
 # Aliases
 alias mm='micromamba'
 alias conda='micromamba'
+alias ls='eza'
+alias ll='eza -l --icons'
+alias l='eza -la --icons'
+alias lt='eza --tree --level=2 --icons'
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(pyenv init --path)"
