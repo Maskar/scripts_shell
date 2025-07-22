@@ -1,15 +1,3 @@
-setopt HIST_IGNORE_SPACE
-setopt HIST_IGNORE_DUPS
-setopt HIST_IGNORE_ALL_DUPS
-
-# Env root folders
-export XDG_CONFIG_HOME="$HOME/.config"
-export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
-export ZSH="$XDG_CONFIG_HOME/.oh-my-zsh"
-export PYENV_ROOT="$XDG_CONFIG_HOME/.pyenv"
-export MAMBA_ROOT_PREFIX="$HOME/micromamba"
-
-
 
 # Editor selection
 if command -v micro >/dev/null 2>&1; then
