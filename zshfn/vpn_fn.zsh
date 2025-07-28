@@ -44,7 +44,8 @@ function start_openconnect() {
     echo "${BIYellow}VPN_GROUP is not set. Aborting.${Color_Off}"
     return 1
   fi
-  password=$(op read "op://TM/TFX VPN/password" 2>/dev/null)
+  # password=$(op read "op://TM/TFX VPN/password" 2>/dev/null)
+  password=$(op read "op://TM/bhf5vyoaahn77gg4fitxtx4toq/password" 2>/dev/null)
   group=$(op read "op://TM/TFX VPN/group" 2>/dev/null)
   username=$(op read "op://TM/TFX VPN/username" 2>/dev/null)
   cert=$(op read "op://TM/TFX VPN/cert" 2>/dev/null)
