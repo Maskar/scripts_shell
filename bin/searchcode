@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# searchcode: find string in filenames and contents for .sql and .py
+
+set -euo pipefail
+
+usage() {
+  echo "Usage: $(basename "$0") <search_string> [root_dir=.] [-s]"
+  echo "  <search_string>   required text to search"
+  echo "  [root_dir]        optional root directory, default is current folder"
+  echo "  -s                case sensitive search (both filenames and contents)"
+  exit 1
+}
+
+# Parse args
+pattern="${1:-}"
+root="${2:-.}"
+flag="${3:-}"
+
+[[ -z "${pattern}" ]] && usage
+
+# Default: case-insensitive
+fd_flags="--ignore-case"
+rg_flags="-i"
+[[ "$flag" == "-s" ]] && { fd_flags=""; rg_flags=""; }
+
+# Check deps
+command -v rg >/dev/null || { echo "ripgrep (rg) is required"; exit 2; }
+command -v fd >/dev/null || { echo "fd is required"; exit 2; }
+
+echo "=== Filename matches (.sql, .py) ==="
+fd $fd_flags "$pattern" "$root" --type f --extension sql --extension py || true
+
+echo
+echo "=== Content matches (.sql, .py) ==="
+rg $rg_flags -n --glob "*.sql" --glob "*.py" "$pattern" "$root" || true

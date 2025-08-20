@@ -31,7 +31,3 @@ fi
 export LESS="-SRXF"
 
 
-
-
-
-
