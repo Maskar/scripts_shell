@@ -52,3 +52,5 @@ source "$HOME/.scripts_shell/zshfn/misc_fn.zsh"
 source "$HOME/.scripts_shell/zshfn/vpn_fn.zsh"
 
 
+autoload -Uz compinit
+compinit
