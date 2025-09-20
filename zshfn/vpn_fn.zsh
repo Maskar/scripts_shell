@@ -1,6 +1,8 @@
 #!/usr/bin/env zsh
 
-#sudo sh -c 'echo "%admin ALL=(ALL) NOPASSWD: /usr/local/bin/openconnect" > /etc/sudoers.d/foo'
+# sudo sh -c 'echo "%admin ALL=(ALL) NOPASSWD: /usr/local/bin/openconnect" > /etc/sudoers.d/foo'
+
+# sudo openconnect --background --verbose --no-dtls --passwd-on-stdin --authgroup="TFX" --user="$(op read 'op://TM/TFX VPN/username')" ny4vpn.tfxcorp.com:7135 <<< "$(op read 'op://TM/bhf5vyoaahn77gg4fitxtx4toq/password')"
 
 #
 # ZSH functions to start/stop OpenConnect VPN client
@@ -53,7 +55,7 @@ function start_openconnect() {
     echo "${BIRed}Failed to fetch VPN credentials from 1Password. Aborting.${Color_Off}"
     return 1
   fi
-  local cmd=(sudo openconnect $oc_opts --disable-ipv6 --passwd-on-stdin --authgroup="$group" --user="$username")
+  local cmd=(sudo openconnect $oc_opts --no-dtls --disable-ipv6 --background --passwd-on-stdin --authgroup="$group" --user="$username")
   if [[ -n "$VPN_HOST_CERT" ]]; then
     cmd+=(--servercert "$VPN_HOST_CERT")
   fi
@@ -95,7 +97,7 @@ function vpn-up() {
   else
     echo "${BICyan}Starting the VPN ...${Color_Off}"
     echo "${BLINK}${BIYellow}Approve connection on phone!${Color_Off}"
-    start_openconnect "-bq" true
+    start_openconnect "-q" true
   fi
 
   if pgrep -x "openconnect" > /dev/null; then
@@ -103,7 +105,7 @@ function vpn-up() {
   else
     echo "${REPLACE_2LINE}${EXCLAMATION_MARK} ${BIRed}VPN failed to start!${Color_Off}"
     echo "${BICyan}Retrying in debug mode (not quiet)...${Color_Off}"
-    start_openconnect "-bv" false
+    start_openconnect "-v" false
   fi
 }
 
