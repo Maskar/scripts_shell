@@ -18,13 +18,13 @@ export HOMEBREW_CASK_OPTS="--no-quarantine"
 # Themes
 export SPACESHIP_CONFIG="$XDG_CONFIG_HOME/zsh/spaceship.zsh"
 
-if [[ "$TERM_PROGRAM" == "vscode" ]]; then
-  # Settings for Cursor/VS Code terminal
-  ZSH_THEME="gozilla"
-  # Add other customizations here
-else
+if [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
   # Settings for your regular terminal
   ZSH_THEME="powerlevel10k/powerlevel10k"
+  # Add other customizations here
+else
+  # Settings for Cursor/VS Code terminal
+  ZSH_THEME="gozilla"
   # Add other customizations here
 fi
 

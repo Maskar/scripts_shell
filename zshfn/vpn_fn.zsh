@@ -2,7 +2,7 @@
 
 # sudo sh -c 'echo "%admin ALL=(ALL) NOPASSWD: /usr/local/bin/openconnect" > /etc/sudoers.d/foo'
 
-# sudo openconnect --background --verbose --no-dtls --passwd-on-stdin --authgroup="TFX" --user="$(op read 'op://TM/TFX VPN/username')" ny4vpn.tfxcorp.com:7135 <<< "$(op read 'op://TM/bhf5vyoaahn77gg4fitxtx4toq/password')"
+# sudo openconnect --background --verbose --disable-ipv6 --no-dtls --passwd-on-stdin --authgroup="TFX" --user="$(op read 'op://TM/TFX VPN/username')" ny4vpn.tfxcorp.com:7135 <<< "$(op read 'op://TM/bhf5vyoaahn77gg4fitxtx4toq/password')"
 
 #
 # ZSH functions to start/stop OpenConnect VPN client
